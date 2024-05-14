@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(403).json({ error: 'No credentials sent.' });
   } else {
-    const token = req.headers.authorization.split(' ')[1]
+    const token = req.headers.authorization.split(' ')[1];
     nJwt.verify(token, process.env.SIGNING_KEY, (err, verifiedJwt) => {
       if (err) {
         return res.status(403).json({ error: err });
@@ -30,10 +30,14 @@ app.use((req, res, next) => {
 });
 
 app.post('/api/v1/submit-contact', upload.none(), (req, res, next) => {
-  const body = req.body;
-  console.log('body', body)
+  const keyVal = (key) => `<div>${key}: ${req.body[key]}</div>`;
+  const html = `
+    <div>
+      ${Object.keys(req.body).map(keyVal).join('')}
+    </div>`;
+
   if (req.body) {
-    res.status(200).send({ message: 'Form sent' });
+    res.status(200).send({ message: 'Form sent ' + html  });
   } else {
     return res.status(400).send({ message: 'Missing body' });
   }
