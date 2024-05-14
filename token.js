@@ -1,6 +1,7 @@
 const nJwt = require('njwt');
 const secureRandom = require('secure-random');
-const signingKey = secureRandom(256, { type: 'Buffer' }); // Create a highly random byte array of 256 bytes
+
+const signingKey = process.env.SIGNING_KEY || secureRandom(256, { type: 'Buffer' }); // Create a highly random byte array of 256 bytes
 
 function createToken(sub, exp) {
   const claims = {
