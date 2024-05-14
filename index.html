@@ -1,0 +1,30 @@
+<html>
+<body>
+    <form>
+        <input placeholder="First Name" type="text" name="first-name" required>
+        <input placeholder="Last Name" type="text" name="last-name" required>
+        <input placeholder="Email" type="text" name="email" required>
+        <textarea placeholder="Comment" type="text" name="comment" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+<script>
+    const form = document.querySelector('form');
+
+    const submitForm = (e) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formData.append('origin-site', 'Test Origin');
+    fetch('http://localhost:3000/api/v1/submit-contact', {
+        method: 'POST',
+        body: formData,
+    })
+        .then((r) => r.json())
+        .then((rr) => console.log('Response: ', rr))
+        .catch((e) => console.log('ERROR: ', e));
+    };
+
+    form.addEventListener('submit', submitForm);
+</script>
+
+</html>
