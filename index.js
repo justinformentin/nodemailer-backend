@@ -4,6 +4,7 @@ const multer = require('multer');
 const dotenv = require('dotenv');
 const nJwt = require('njwt');
 const file = require('./emaillist.json');
+const nodemailer = require('nodemailer');
 
 dotenv.config();
 
@@ -31,6 +32,16 @@ app.use((req, res, next) => {
   }
 });
 
+function getSMTPConfiguration() {
+  const service = process.env.EMAIL_SERVICE;
+  const host = process.env.EMAIL_HOST;
+  const port = Number(process.env.EMAIL_PORT);
+  const secure = process.env.EMAIL_TLS !== 'false';
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASSWORD;
+  return { service, host, port, secure, auth: { user, pass } };
+}
+
 app.post('/api/v1/submit-contact', upload.none(), (req, res, next) => {
   const email = req && req.body && req.body.email;
   const domain = email && email.split('@')[1];
@@ -42,7 +53,17 @@ app.post('/api/v1/submit-contact', upload.none(), (req, res, next) => {
       ${Object.keys(req.body).map(keyVal).join('')}
     </div>`;
 
-    res.status(200).send({ message: 'Form sent ' + html });
+    const config = {
+      from: process.env.EMAIL_SENDER,
+      to: process.env.EMAIL_SENDER,
+      subject: `${body['origin-site'] || ''} Contact Form`,
+      html,
+    };
+
+    const transporter = nodemailer.createTransport(getSMTPConfiguration());
+    transporter.sendMail(config).then((info) => {
+      res.status(200).send({ message: 'Message sent: ' + info.messageId });
+    });
   } else {
     return res.status(400).send({
       message: !email
