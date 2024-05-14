@@ -54,8 +54,8 @@ app.post('/api/v1/submit-contact', upload.none(), (req, res, next) => {
     </div>`;
 
     const config = {
-      from: process.env.EMAIL_SENDER,
-      to: process.env.EMAIL_SENDER,
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
       subject: `${body['origin-site'] || ''} Contact Form`,
       html,
     };
