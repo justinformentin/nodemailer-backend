@@ -3,6 +3,8 @@ const cors = require('cors');
 const multer = require('multer');
 const dotenv = require('dotenv');
 const nJwt = require('njwt');
+const file = require('./emaillist.json');
+
 dotenv.config();
 
 const app = express();
@@ -30,15 +32,22 @@ app.use((req, res, next) => {
 });
 
 app.post('/api/v1/submit-contact', upload.none(), (req, res, next) => {
-  const keyVal = (key) => `<div>${key}: ${req.body[key]}</div>`;
-  const html = `
+  const email = req && req.body && req.body.email;
+  const domain = email && email.split('@')[1];
+
+  if (domain && !file.includes(domain)) {
+    const keyVal = (key) => `<div>${key}: ${req.body[key]}</div>`;
+    const html = `
     <div>
       ${Object.keys(req.body).map(keyVal).join('')}
     </div>`;
 
-  if (req.body) {
-    res.status(200).send({ message: 'Form sent ' + html  });
+    res.status(200).send({ message: 'Form sent ' + html });
   } else {
-    return res.status(400).send({ message: 'Missing body' });
+    return res.status(400).send({
+      message: !email
+        ? 'Email missing'
+        : 'Email from ' + domain + ' not allowed',
+    });
   }
 });
